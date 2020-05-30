@@ -21,8 +21,6 @@ weight_data <- weight_data %>%
 
 ui <- navbarPage(
     "Nobitoru Info",
-    tabPanel("Nobitoru", 
-             div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3))),
     tabPanel("Weight Record",
              sliderInput(inputId = "dates_range",
                          "Dates to be plotted: ", 
@@ -31,10 +29,12 @@ ui <- navbarPage(
                          value = c(min(weight_data$Date), max(weight_data$Date)),
                          timeFormat = "%Y-%m-%d", 
                          width = "90%"),
-             plotOutput("distPlot")
+             div(plotOutput("distPlot", height = "100%"), style = "height: calc(100vh - 200px)")
              
     ),
-    tabPanel("Budget Record")
+    tabPanel("Budget Record"),
+    tabPanel("Nobitoru", 
+             div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3)))
 )
 
 # Define server logic required to draw a histogram

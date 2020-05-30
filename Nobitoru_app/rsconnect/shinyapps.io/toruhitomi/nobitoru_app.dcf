@@ -1,0 +1,10 @@
+name: nobitoru_app
+title:
+username:
+account: toruhitomi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2271490
+bundleId: 3124429
+url: https://toruhitomi.shinyapps.io/nobitoru_app/
+when: 1589036234.64883
