@@ -20,8 +20,8 @@ weight_data <- weight_data %>%
 
 
 ui <- navbarPage(
-    "Nobitoru Info",
-    tabPanel("Weight Record",
+    "Nobitoru App",
+    tabPanel("Weight Record", 
              sliderInput(inputId = "dates_range",
                          "Dates to be plotted: ", 
                          min = min(weight_data$Date), 
@@ -29,7 +29,12 @@ ui <- navbarPage(
                          value = c(min(weight_data$Date), max(weight_data$Date)),
                          timeFormat = "%Y-%m-%d", 
                          width = "90%"),
-             div(plotOutput("distPlot", height = "100%"), style = "height: calc(100vh - 200px)")
+             radioButtons(inputId = "who",
+                          label = "Whose data:", 
+                          choices = c("Both", "Novi", "Toru"), 
+                          selected = "Both", inline = T 
+                          ),
+             div(plotOutput("weightPlot", height = "90%"), style = "height: calc(100vh - 200px)")
              
     ),
     tabPanel("Budget Record"),
@@ -39,15 +44,43 @@ ui <- navbarPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    output$distPlot <- renderPlot({
+    output$weightPlot <- renderPlot({
         # Generate line plot tracking weight changes across time
-        weight_data %>% 
+        weight_data <- weight_data %>% 
             dplyr::filter(!is.na(Data)) %>% 
-            subset(Date >= input$dates_range[1] & Date <= input$dates_range[2]) %>% 
-            ggplot(aes(x = Date, y = Data, color = Nobitoru)) +
-            geom_point() + 
+            subset(Date >= input$dates_range[1] & Date <= input$dates_range[2])
+        
+        # Select whose data to be shown
+        if (input$who == "Both") {
+            weight_data
+        } else {
+            weight_data <- weight_data %>% 
+                dplyr::filter(Nobitoru == input$who)
+        }
+        
+        # Calculate average per DataType and Nobitoru
+        avg <- weight_data %>% 
+            group_by(DataType, Nobitoru) %>% 
+            summarise(meanData = mean(Data, na.rm = T)) %>% 
+            ungroup()
+        
+        # Generate line plot tracking weight changes across time
+        g <- weight_data %>%
+            ggplot(aes(x = Date, y = Data, color = Nobitoru, group = Nobitoru)) +
+            geom_point() +
             geom_line() +
+            geom_hline(data = avg, aes(yintercept = meanData, color = Nobitoru, group = Nobitoru), lty = "dotted", size = 1) +
             facet_grid(rows = vars(DataType), scales = "free")
+        
+        if (input$who == "Both") {
+            g <- g + scale_color_manual(values = c("#FABC5F", "#417CFC"))
+        } else if (input$who == "Novi") {
+            g <- g + scale_color_manual(values = "#FABC5F")
+        } else {
+            g <- g + scale_color_manual(values = "#417CFC")
+        }
+        
+        print(g)
     })
 }
 
