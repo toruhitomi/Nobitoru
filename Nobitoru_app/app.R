@@ -5,10 +5,12 @@ library(htmlwidgets)
 library(tidyverse)
 theme_set(theme_bw(base_size = 17))
 
-# Read the data from Google sheet
+
+# Read the weight data from Google sheet ----------------------------------
 weight_data <- gsheet2text(url = "https://docs.google.com/spreadsheets/d/10XMGCynrMzbaxKnchAh0QmuaVW1F8FdH0Gx0zZwC7fU/edit?usp=sharing",
                            format = "csv") %>% 
-    read_csv(col_names = c("Date", "Time", "Toru_weight", "Toru_%fat", "Novi_weight", "Novi_%fat", "burnt_cal", "n_steps", "distance_km"), skip = 1) %>% 
+    read_csv(col_names = c("Date", "Time", "Toru_weight", "Toru_%fat", "Novi_weight", "Novi_%fat", "burnt_cal", "n_steps", "distance_km"), 
+             skip = 1, locale = locale(encoding = "utf8")) %>% 
     mutate(Date = as.Date(Date, tryFormats = "%m/%d")) %>% 
     pivot_longer(cols = `Toru_weight`:distance_km, names_to = "DataType", values_to = "Data") %>% 
     mutate(Nobitoru = if_else(str_detect(.$DataType, "Novi"), "Novi", "Toru"))
@@ -19,6 +21,44 @@ weight_data <- weight_data %>%
     mutate(DataType = factor(DataType, levels = c("weight", "%fat", "burnt_cal", "n_steps", "distance_km")))
 
 
+# Read the budget data from Google sheet ----------------------------------
+init_year <- 2020
+init_month <- 4
+current_month <- which(month.abb == stringr::str_split(date(), " ")[[1]][2])
+sheetids <- sprintf("%d%02d", init_year, seq(from = init_month, to = current_month))
+
+# This spreadsheet has multiple sheets each of which is to be accessed
+library(googledrive)
+library(googlesheets4)
+budget_data <- drive_get("Budget_Nobitoru_202004-")
+sheet_id <- googlesheets4::as_sheets_id(budget_data) %>% 
+    sheet_properties()
+infra_data <- read_sheet(ss = budget_data, sheet = "Infra")
+monthly <- sheetids %>% purrr::map_dfr(.x = ., .f = read_sheet, 
+                                       ss = budget_data, range = "A1:H50") %>% 
+    tidyr::drop_na(Month)
+
+ba <- monthly %>% 
+    dplyr::filter(Month %in% c("Before", "After")) %>% 
+    dplyr::select(c("Month", dplyr::starts_with("Bank"))) %>% 
+    dplyr::mutate(BeforeAfter = unlist(Month),
+                  YearMonth = rep(sheetids, each = 2)) %>% 
+    dplyr::select(YearMonth, BeforeAfter, Bank_Mizuho, Bank_JP)
+ba
+
+daily <- tibble::tibble()
+for (ii in 1:nrow(monthly)) {
+    if (any(class(monthly$Month[[ii]]) == "POSIXct")) {
+        m <- format(monthly$Month[[ii]], tz = "Japan", usetz = T, format = "%Y-%m-%d")
+        daily <- rbind.data.frame(daily, tibble::tibble(
+                Date = m,
+                monthly[ii, 2:ncol(monthly)]
+            ))
+    }
+}
+daily
+
+# UI section --------------------------------------------------------------
 ui <- navbarPage(
     "Nobitoru App",
     tabPanel("Weight Record", 
@@ -41,6 +81,7 @@ ui <- navbarPage(
     tabPanel("Nobitoru", 
              div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3)))
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
