@@ -3,6 +3,7 @@ library(shinydashboard)
 library(gsheet)
 library(htmlwidgets)
 library(tidyverse)
+library(plotly)
 theme_set(theme_bw(base_size = 17))
 
 
@@ -56,7 +57,16 @@ for (ii in 1:nrow(monthly)) {
             ))
     }
 }
-daily
+
+update_mizuho <- ba[[1, "Bank_Mizuho"]]
+update_jp     <- ba[[1, "Bank_JP"]]
+for (ii in 1:nrow(daily)) {
+    update_mizuho <- update_mizuho + daily[ii, "Bank_Mizuho"]
+    update_jp     <- update_jp     + daily[ii, "Bank_JP"]
+    daily[ii, "Bank_Mizuho"] <- update_mizuho
+    daily[ii, "Bank_JP"] <- update_jp
+}
+# daily
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
@@ -77,9 +87,15 @@ ui <- navbarPage(
              div(plotOutput("weightPlot", height = "90%"), style = "height: calc(100vh - 200px)")
              
     ),
-    tabPanel("Budget Record"),
+    tabPanel("Budget Record",
+             div(plotlyOutput("budgetPlot", height = "90%"), style = "height: calc(100vh - 200px)")),
     tabPanel("Nobitoru", 
-             div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3)))
+             div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3)),
+             h3("About Nobitoru"),
+             fluidRow(
+                 column(12, p("Novi: lovely active but laidback woman who loves thinking about food, life styles, and buying houses."),
+                            p("Toru: cool and a bit nerdy man who loves thinking about food, science and books."))
+             ))
 )
 
 
@@ -122,6 +138,21 @@ server <- function(input, output) {
         }
         
         print(g)
+    })
+    
+    output$budgetPlot <- renderPlotly({
+        budget_track <- daily %>% 
+            select(1:3) %>% 
+            mutate(Total = Bank_Mizuho + Bank_JP) %>% 
+            pivot_longer(cols = Bank_Mizuho:Total, names_to = "Bank", values_to = "Balance") %>% 
+            ggplot(aes(x = Date, y = Balance/1000000, color = Bank, group = Bank)) +
+            geom_point() +
+            geom_line() + 
+            theme_bw() +
+            theme(axis.text.x = element_text(angle = 90)) +
+            scale_color_manual(values = c("#1BD158", "#417CFC", "red")) +
+            labs(y = "Balance (M)", title = "Toru's Bank Balance")
+        ggplotly(budget_track)
     })
 }
 
