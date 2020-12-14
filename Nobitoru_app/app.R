@@ -71,6 +71,7 @@ for (ii in 1:nrow(daily)) {
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
     "Nobitoru App",
+    # UI 1: Weight ####
     tabPanel("Weight Record", 
              sliderInput(inputId = "dates_range",
                          "Dates to be plotted: ", 
@@ -87,8 +88,11 @@ ui <- navbarPage(
              div(plotOutput("weightPlot", height = "90%"), style = "height: calc(100vh - 200px)")
              
     ),
+    # UI 2: Budget ####
     tabPanel("Budget Record",
              div(plotlyOutput("budgetPlot", height = "90%"), style = "height: calc(100vh - 200px)")),
+    
+    # UI 3: Nobitoru intro ####
     tabPanel("Nobitoru", 
              div(img(src = "Nobitoru_pic.jpg", align = "center", height = 150*3, width = 200*3)),
              h3("About Nobitoru"),
@@ -151,7 +155,7 @@ server <- function(input, output) {
             theme_bw() +
             theme(axis.text.x = element_text(angle = 90)) +
             scale_color_manual(values = c("#1BD158", "#417CFC", "red")) +
-            labs(y = "Balance (M yen)", title = "Toru's Bank Balance")
+            labs(y = "Balance (M JPY)", title = "Toru's Bank Balance")
         ggplotly(budget_track)
     })
 }
