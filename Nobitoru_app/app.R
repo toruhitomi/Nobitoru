@@ -25,8 +25,33 @@ weight_data <- weight_data %>%
 # Read the budget data from Google sheet ----------------------------------
 init_year <- 2020
 init_month <- 4
-current_month <- which(month.abb == stringr::str_split(date(), " ")[[1]][2])
-sheetids <- sprintf("%d%02d", init_year, seq(from = init_month, to = current_month))
+current_year <- lubridate::year(Sys.Date())
+current_month <- lubridate::month(Sys.Date())
+
+if (init_year == current_year) {
+    sheetids <- sprintf("%d%02d", init_year, seq(from = init_month, to = current_month))
+} else if (init_year < current_year) {
+    nYear <- current_year - init_year
+    sheetids <- character()
+    for (ii in seq(init_year, current_year)) {
+        if (ii == init_year) {
+            sheetids <- c(
+                sheetids, sprintf("%d%02d", init_year, seq(from = init_month, to = 12))
+            )
+        } else if (ii == current_year) {
+            sheetids <- c(
+                sheetids, 
+                sprintf("%d%02d", ii, seq(from = 1, to = current_month))
+            )
+        } else {
+            sheetids <- c(
+                sheetids, 
+                sprintf("%d%02d", ii, seq(from = 1, to = 12))
+            )
+        }
+    } 
+}
+
 
 # This spreadsheet has multiple sheets each of which is to be accessed
 library(googledrive)
@@ -90,7 +115,8 @@ ui <- navbarPage(
     ),
     # UI 2: Budget ####
     tabPanel("Budget Record",
-             div(plotlyOutput("budgetPlot", height = "90%"), style = "height: calc(100vh - 200px)")),
+             div(plotlyOutput("budgetPlot", height = "90%"), style = "height: calc(100vh - 200px)"),
+             div(plotlyOutput("creditPlot", height = "90%"), style = "height: calc(100vh - 200px)")),
     
     # UI 3: Nobitoru intro ####
     tabPanel("Nobitoru", 
@@ -157,6 +183,23 @@ server <- function(input, output) {
             scale_color_manual(values = c("#1BD158", "#417CFC", "red")) +
             labs(y = "Balance (M JPY)", title = "Toru's Bank Balance")
         ggplotly(budget_track)
+    })
+    
+    output$creditPlot <- renderPlotly({
+        credit_track <- monthly %>% filter(str_detect(Mizuho_category, "credit payment")) %>% 
+            mutate(Month = as.Date(as.POSIXct.numeric(unlist(Month), format = "%Y-%m-%d", tz = "Japan", origin = "1970-01-01"))) %>% 
+            mutate(meanCredit = -1 * mean(Bank_Mizuho)) %>% 
+            ggplot(aes(x = Month, y = -1 * Bank_Mizuho)) +
+            geom_bar(stat = "identity", fill = c("#00B2EE"), alpha = .6) +
+            geom_hline(aes(yintercept = meanCredit), color = "blue", lty = "dashed", size = 1.5) +
+            geom_line(aes(group = 1)) +
+            geom_point(size = 1.2) +
+            labs(x = NULL, y = NULL, title = "Credit payment") +
+            scale_x_date(date_breaks = "1 month") +
+            scale_y_continuous(labels = scales::dollar_format(prefix = "￥")) +
+            coord_flip() +
+            theme_bw(base_family = "Hiragino Kaku Gothic Pro W6")
+        ggplotly(credit_track)
     })
 }
 
