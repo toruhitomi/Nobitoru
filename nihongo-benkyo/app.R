@@ -1,3 +1,4 @@
+# Prep ####
 library(shiny)
 library(shinyjs)
 library(tidyverse)
@@ -6,38 +7,10 @@ source("katakana.R")
 source("kana_sound.R")
 source("number_reading.R")
 kanji_n4 <- read.csv("N4_Kanji.csv")
-# kanji_n5 <- read.csv("N5_Kanji.csv")
 kanji_n5 <- readxl::read_excel("N5_Kanji.xlsx", sheet = 2)
-# kanji_n5 <- kanji_n5 %>%
-#     select(-1)
-# colnames(kanji_n5)[4] <- "Kanji.Meaning"
-# ii <- 1
-# df <- tibble()
-# for (ii in 1:nrow(kanji_n5)) {
-#     if (!is.na(kanji_n5$Kanji[ii])) {
-#         kanji <- kanji_n5$Kanji[ii]
-#         onyomi_roman <- kanji_n5$Onyomi[ii]
-#         kunyomi_roman <- kanji_n5$Kunyomi[ii]
-#         meaning <- kanji_n5$Kanji.Meaning[ii]
-# 
-#     } else {
-#         if (!all(is.na(as.character(kanji_n5[ii,])))) {
-#             onyomi_kana <- kanji_n5$Onyomi[ii]
-#             kunyomi_kana <- kanji_n5$Kunyomi[ii]
-# 
-#             df <- df %>%
-#                 bind_rows(
-#                     tibble(
-#                         kanji, on.yomi = onyomi_kana, kun.yomi = kunyomi_kana, meaning
-#                     )
-#                 )
-# 
-#         }
-#     }
-# }
-# data.table::fwrite(df, "N5_Kanji.csv", bom = T)
+# ****************** ####
 
-# Define UI for application that draws a histogram
+# UI ####
 ui <- fluidPage(
     shinyjs::useShinyjs(),
     # Application title
@@ -96,6 +69,7 @@ ui <- fluidPage(
         )
     )
 )
+# ****************** ####
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -187,6 +161,7 @@ server <- function(input, output, session) {
         shinyjs::reset(id = "feedback_kanji")
         kanji$msg <- NULL
         
+        # Add more and more data frames
         if (kanji_level() == "JLPT N5") {
             df.kanji <<- kanji_n5
         }
@@ -205,8 +180,6 @@ server <- function(input, output, session) {
                          choices = c("Choose from below:", kanji_options))
         })
     })
-        
-    
     # Check answer and feedback
     observeEvent(list(input$check_kanji), {
         shinyjs::reset(id = "kanji_div")
@@ -221,40 +194,6 @@ server <- function(input, output, session) {
         output$feedback_kanji <- renderText({ kanji$msg })
     })
     
-    
-    # feedback_msg <- eventReactive(input$check_kanji, {
-    #     req(input$check_kanji)
-    #     if (!input$kanji_answer %in% kanji_options) {
-    #         ""
-    #     } else {
-    #         judge <- ifelse(input$kanji_answer == df.kanji$corr_ans[idx_kanji], "Correct!", "Incorrect")
-    #         paste0("<span style='color:", ifelse(judge == "Correct!", "green", "red"), ";font-size:20px'>", judge, "</span><br>   ",
-    #                ifelse(judge == "Correct!", "", sprintf("Correct answer: '%s'", df.kanji$corr_ans[idx_kanji])))
-    #     }
-    # })
-    # output$feedback_kanji <- feedback_msg()
-    # output$feedback_kanji <- renderText({
-    #     if (input$check_kanji == 0)
-    #         return()
-    #     if (!input$kanji_answer %in% kanji_options)
-    #         return()
-    #     isolate({
-    #         judge <- ifelse(input$kanji_answer == df.kanji$corr_ans[idx_kanji], "Correct!", "Incorrect")
-    #         paste0("<span style='color:", ifelse(judge == "Correct!", "green", "red"), ";font-size:20px'>", judge, "</span><br>   ",
-    #                ifelse(judge == "Correct!", "", sprintf("Correct answer: '%s'", df.kanji$corr_ans[idx_kanji])))
-    #     })
-    # })
-    
-    # output$feedback_kanji <- renderText({
-    #     kanji()$feedback_msg
-    # })
-    # observeEvent(input$check_kanji, {
-    #     # input$check_kanji
-    #     check_kanji()
-    #     judge <- ifelse(input$kanji_answer == df.kanji$corr_ans[idx_kanji], "Correct!", "Incorrect")
-    #     kanji(list(feedback_msg = paste0("<span style='color:", ifelse(judge == "Correct!", "green", "red"), ";font-size:20px'>", judge, "</span><br>   ",
-    #                                      ifelse(judge == "Correct!", "", sprintf("Correct answer: '%s'", df.kanji$corr_ans[idx_kanji])))))
-    # })
 }
 
 # Run the application 
