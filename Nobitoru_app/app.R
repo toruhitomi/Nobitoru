@@ -11,8 +11,8 @@ options(dplyr.summarise.inform = F)
 weight_data <- gsheet2text(url = "https://docs.google.com/spreadsheets/d/10XMGCynrMzbaxKnchAh0QmuaVW1F8FdH0Gx0zZwC7fU/edit?usp=sharing",
                            format = "csv") %>% 
     read_csv(col_names = c("Date", "Time", "Toru_weight", "Toru_%fat", "Novi_weight", "Novi_%fat", "burnt_cal", "n_steps", "distance_km"), 
-             skip = 1, locale = locale(encoding = "utf8")) %>% 
-    mutate(Date = as.Date(Date, tryFormats = "%m/%d")) %>% 
+             skip = 1, locale = locale(tz = "Japan", encoding = "UTF-8"), col_types = cols()) %>% 
+    mutate(Date = as.Date(Date, tryFormats = "%m/%d/%Y")) %>% 
     pivot_longer(cols = `Toru_weight`:distance_km, names_to = "DataType", values_to = "Data") %>% 
     mutate(Nobitoru = if_else(str_detect(.$DataType, "Novi"), "Novi", "Toru"))
 for (ii in c("weight", "%fat")) {
@@ -56,42 +56,102 @@ if (init_year == current_year) {
 # This spreadsheet has multiple sheets each of which is to be accessed
 library(googledrive)
 library(googlesheets4)
+
+drive_auth(email = "world.through.eyes@gmail.com")
+# gs4_auth(scope = "https://www.googleapis.com/auth/drive")
+gs4_auth(token = drive_token())
 budget_data <- drive_get("Budget_Nobitoru_202004-")
 sheet_id <- googlesheets4::as_sheets_id(budget_data) %>% 
     sheet_properties()
 infra_data <- read_sheet(ss = budget_data, sheet = "Infra")
-monthly <- sheetids %>% purrr::map_dfr(.x = ., .f = read_sheet, 
-                                       ss = budget_data, range = "A1:E50") %>% 
+monthly <- sheetids %>% 
+    furrr::future_map_dfr(.f = read_sheet, .id = "sheetid",
+    # purrr::map_dfr(.f = read_sheet, 
+                   ss = budget_data, range = "A1:G50") %>% 
     tidyr::drop_na(Month)
+
+monthly <- monthly %>% 
+    mutate(sheetid = as.numeric(sheetid)) %>% 
+    left_join(
+        tibble(
+            sheetid = 1:length(sheetids),
+            sheetName = sheetids
+        )
+    ) %>% 
+    relocate(sheetName, .before = 1) %>% 
+    dplyr::select(-sheetid)
 
 ba <- monthly %>% 
     dplyr::filter(Month %in% c("Before", "After")) %>% 
-    dplyr::select(c("Month", dplyr::starts_with("Bank"))) %>% 
+    dplyr::select(c(Month, sheetName, dplyr::starts_with("Bank"))) %>% 
     dplyr::mutate(BeforeAfter = unlist(Month),
-                  YearMonth = rep(sheetids, each = 2)) %>% 
-    dplyr::select(YearMonth, BeforeAfter, Bank_Mizuho, Bank_JP)
+                  YearMonth = sheetName) %>% 
+    dplyr::select(YearMonth, BeforeAfter, Bank_Mizuho, Bank_JP, Bank_Mizuho_saving)
 ba
 
 daily <- tibble::tibble()
 for (ii in 1:nrow(monthly)) {
     if (any(class(monthly$Month[[ii]]) == "POSIXct")) {
         m <- format(monthly$Month[[ii]], tz = "Japan", usetz = T, format = "%Y-%m-%d")
-        daily <- rbind.data.frame(daily, tibble::tibble(
+        
+        if (lubridate::year(m) == 2020 & lubridate::month(m) == 3) {
+            daily <- rbind.data.frame(daily, tibble::tibble(
                 Date = m,
                 monthly[ii, 2:ncol(monthly)]
             ))
+        } else {
+            if (lubridate::year(m) == as.numeric(str_sub(monthly$sheetName[[ii]], 1, 4)) & lubridate::month(m) == as.numeric(str_sub(monthly$sheetName[[ii]], 5, 6))) {
+                daily <- rbind.data.frame(daily, tibble::tibble(
+                    Date = m,
+                    monthly[ii, 2:ncol(monthly)]
+                ))
+            } else {
+                # do nothing
+            }
+        }
     }
 }
 
-update_mizuho <- ba[[1, "Bank_Mizuho"]]
-update_jp     <- ba[[1, "Bank_JP"]]
+update_mizuho  <- ba[[1, "Bank_Mizuho"]]
+update_jp      <- ba[[1, "Bank_JP"]]
+update_mizuho2 <- ba[[1, "Bank_Mizuho_saving"]]
 for (ii in 1:nrow(daily)) {
-    update_mizuho <- update_mizuho + daily[ii, "Bank_Mizuho"]
-    update_jp     <- update_jp     + daily[ii, "Bank_JP"]
+    update_mizuho  <- update_mizuho + daily[ii, "Bank_Mizuho"]
+    update_jp      <- update_jp     + daily[ii, "Bank_JP"]
+    if (is.na(daily[ii, "Bank_Mizuho_saving"])) {
+        update_mizuho2 <- NA
+    } else {
+        if (is.na(update_mizuho2)) {
+            update_mizuho2 <- daily[ii, "Bank_Mizuho_saving"]
+        } else {
+            update_mizuho2 <- update_mizuho2 + daily[ii, "Bank_Mizuho_saving"]
+        }
+    }
+    
     daily[ii, "Bank_Mizuho"] <- update_mizuho
     daily[ii, "Bank_JP"] <- update_jp
+    daily[ii, "Bank_Mizuho_saving"] <- update_mizuho2
 }
 # daily
+
+# Read the ETC data from downloaded csv file ####
+# "~/Google Drive/My Drive/Nobitoru/"
+# drive_get(path = "Nobitoru/Finance_management/ETC_history_csv")
+etc.dir <- "~/Google Drive/My Drive/Nobitoru/Finance_management/ETC_history_csv"
+etc.files <- fs::dir_ls(path = etc.dir, type = "file", regexp = ".csv$$")
+if (length(etc.files) == 0) {
+    # do nothing
+} else if (length(etc.files) > 0) {
+    etc.files <- sort(etc.files)[1]
+    etc.df <- read.csv(etc.files, header = F, skip = 1, fileEncoding = "cp932") %>% 
+        tibble::as_tibble() %>% 
+        dplyr::select(V3, V4, V5, V6, V11) %>% 
+        magrittr::set_colnames(c("date", "time", "in_name" , "out_name", "price"))
+}
+
+    
+
+
 
 # UI section --------------------------------------------------------------
 ui <- navbarPage(
@@ -125,6 +185,12 @@ ui <- navbarPage(
              fluidRow(
                  column(12, p("Novi: lovely active but laidback person who loves thinking about food, life styles, and buying houses."),
                             p("Toru: cool and a bit nerdy laidback person who loves thinking about food, science and books."))
+             ),
+             fluidRow(
+                 column(12, p(
+                     "History:
+                              2021.10 - 2022.02 Living in Fujimi Town, Nagano, supported by Nagano Pref. (Otameshi Nagano Program)"
+                 ))
              ))
 )
 
@@ -172,8 +238,10 @@ server <- function(input, output) {
     
     output$budgetPlot <- renderPlotly({
         budget_track <- daily %>% 
-            select(1:2, 4) %>% 
-            mutate(Total = Bank_Mizuho + Bank_JP) %>% 
+            dplyr::select(1, starts_with("Bank_")) %>% 
+            group_by(Date) %>% 
+            mutate(Total = sum(Bank_Mizuho, Bank_JP, Bank_Mizuho_saving, na.rm = T)) %>% 
+            ungroup() %>% 
             pivot_longer(cols = Bank_Mizuho:Total, names_to = "Bank", values_to = "Balance") %>% 
             ggplot(aes(x = Date, y = Balance/1000000, color = Bank, group = Bank)) +
             geom_point() +

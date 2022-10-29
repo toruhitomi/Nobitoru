@@ -1,0 +1,13 @@
+name: nihongo-benkyo
+title: nihongo-benkyo
+username:
+account: toruhitomi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7330405
+bundleId: 6452088
+url: https://toruhitomi.shinyapps.io/nihongo-benkyo/
+when: 1666984340.78511
+lastSyncTime: 1666984340.78513
+asMultiple: FALSE
+asStatic: FALSE
