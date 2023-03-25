@@ -1,7 +1,8 @@
-
-#' Get prime rate information from Bank of Japan website (https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm)
+#' Get prime rate information from Bank of Japan website
+#' 
+#' This function gets the current prime rate info from the website of Bank of Japan (https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm).
 #'
-#' @param plotit Logical value (Default: TRUE) indicating whether you want to plot the result
+#' @param plotit Logical value (Default: TRUE) indicating whether you want to plot the time-series data
 #'
 #' @return Data frame (and ggplot object)
 #' @export
@@ -9,6 +10,7 @@ get_prime_rate <- function(plotit = TRUE) {
   
   pacman::p_load(rvest, XML, tidyverse)
   
+  # scraping part
   url <- "https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm"
   Sys.sleep(1)
   html <- read_html(url)
@@ -18,7 +20,8 @@ get_prime_rate <- function(plotit = TRUE) {
   tbl0 <- tbl %>% 
     magrittr::set_colnames(c("date", "short_pr_mode", "short_pr_max", "short_pr_min", "long_pr"))
   
-  # preprocessing
+  # preprocessing raw table
+  # 1. date columns
   tbl1 <- tbl0 %>% 
     mutate(
       year = mClean(stringr::str_split(stringr::str_split(date, "（", simplify = T)[,2], "）", simplify = T)[,1]),
@@ -27,6 +30,7 @@ get_prime_rate <- function(plotit = TRUE) {
     ) %>% 
     mutate(date = as_date(lubridate::ymd(sprintf("%d-%d-%d", year, month, day), tz = "Japan")))
   
+  # 2. convert all to numeric columns
   tbl2 <- tbl1 %>% 
     mutate(row_id = 1:nrow(.), .before = 1) %>% 
     group_by(row_id) %>% 
@@ -70,9 +74,7 @@ get_prime_rate <- function(plotit = TRUE) {
           tbl2$long_pr[ii] <- tbl2$long_pr[ii - 1]
         }
       }
-      
     }
-    
   }
   
   tbl3 <- tbl2 %>% 
@@ -80,7 +82,7 @@ get_prime_rate <- function(plotit = TRUE) {
     ungroup()
   
   if (plotit) {
-    tbl3 %>%
+    gg <- tbl3 %>%
       pivot_longer(short_pr_mode:long_pr) %>% 
       mutate(name = case_when(
         str_detect(name, "short") ~ sprintf("Short-term rate %s", str_split(name, "_", simplify = T)[,3]),
@@ -88,9 +90,10 @@ get_prime_rate <- function(plotit = TRUE) {
       )) %>% 
       ggplot(aes(x = date, y = value, color = name)) +
       geom_line(aes(group = name)) +
-      labs(x = "Date", y = "Prime rate", color = "Type") +
+      labs(x = "Date", y = "Prime rate (%)", color = "Type") +
       hrbrthemes::theme_ipsum_tw(base_size = 13, axis_title_size = 13) +
       theme(legend.position = "top")
+    print(gg)
   }
     
   return(tbl3)

@@ -2,16 +2,16 @@
 % Please edit documentation in R/get_prime_rate.R
 \name{get_prime_rate}
 \alias{get_prime_rate}
-\title{Get prime rate information from Bank of Japan website (https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm)}
+\title{Get prime rate information from Bank of Japan website}
 \usage{
 get_prime_rate(plotit = TRUE)
 }
 \arguments{
-\item{plotit}{Logical value (Default: TRUE) indicating whether you want to plot the result}
+\item{plotit}{Logical value (Default: TRUE) indicating whether you want to plot the time-series data}
 }
 \value{
 Data frame (and ggplot object)
 }
 \description{
-Get prime rate information from Bank of Japan website (https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm)
+This function gets the current prime rate info from the website of Bank of Japan (https://www.boj.or.jp/statistics/dl/loan/prime/prime.htm).
 }
