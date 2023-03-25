@@ -1,0 +1,14 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 12-03-2012
+
+
+Raster file representing the DEM (Digital Elevation Model) of the Oyumino district. Created using the "Topo to Raster" algorthm of ArcGIS9.0 using contour data and heightspots obtained from the digitisation of a 1:5000 Topographic map issued by the Japan Housing Corporation (now Urban Renaissance Agency) in 1968. (see also <contour.txt> and <heighspot.txt> for more information).
+
+Spatial Projection: Tokyo / Japan Plane Rectangular CS IX (EPSG: 30169)
+
+Raster Attribute: Elevation in meters above sea level (real)
+Cell resolution: 5 meters.
+

@@ -1,0 +1,15 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 19-04-2012
+
+The accompanying dataset provides the reference list from which the dataset has been generated.
+
+Attribute Table Fields:
+"REF"-- Unique identifier to be used in conjunction with <pithousedata>.
+"Year" --Year of publication.
+"Institution" -- Institution responsible for the excavation and the publication of the report.
+"SubTitle" -- Report sub-title.
+"Series" -- Name of excavation report series.
+"Vol" -- Volume number.

@@ -1,0 +1,17 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 28-07-2007
+
+Spatial point data (shapefile) depicting the height spots of the
+Oyumino area (Chiba, Japan). The data has been digitised from a 1:5000
+Topographic map issued by the Japan Housing Corporation (now Urban
+Renaissance Agency) in 1968.
+
+Spatial Projection: Tokyo / Japan Plane Rectangular CS IX (EPSG: 30169)
+
+Attribute Table Fields:
+
+"H" -- Elevation in meters (real)
+

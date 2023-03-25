@@ -1,0 +1,24 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 19-04-2012
+
+The accompanying dataset provides basic information to the 364 pithouses attributed to the interval between Middle and Late Jomon period at Oyumino (Chiba, Japan).
+
+"Pithouse_ID" -- Field where a unique identifier for each pithouse (in string format) is being stored.
+"Original_ID" -- Field containing the original unique identifier (in string format) used in the excavation report.
+"SiteCode" -- Unique identifier referring to the site where the pithouse has been recovered (in string format).
+"MajorAxis" -- Field containing the size of the major axis in meters (when available) as noted in the publication  (in real numeric format).
+"MinorAxis" -- Field containing the size of the minor axis in meters (when available) as noted in the publication  (in real numeric format).
+"PotPhase" -- Field containing pottery-based chronology as noted in the publication  (in string format).
+"REF" -- Unique identifier referring to the excavation report from which the information has been collected (in string format).
+"TOPO_AFTER1", "TOPO_AFTER2","TOPO_AFTER3","TOPO_AFTER4" -- Express the topological relation to other pithouses. The fields contain the "Pithouse_ID" of all pithouses that are cut by the present one (string format).
+
+Notes:
+-"Pithouse_ID" is generated from the "SiteCode" (e.g. AYK) and a
+sequential number (e.g. 001). 
+- "Pithouse_ID" might be characterised by some missing numbers (e.g. AYK-001, AYK002, AYK-004, ...) referring to residential units outside the chronological range of interest and excluded for this dataset.
+-"Pithouse_ID" can be used as linker for joining this table to the shapefile <pithouses> (the field "Code" of <pithouses> must be used in such case).
+
+

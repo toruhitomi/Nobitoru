@@ -1,0 +1,21 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 19-04-2012
+
+The accompanying dataset provides the absolute interval (time-span of existence) of each unique chronological marker used in the dataset <pithousedata>, using the absolute chronological sequence proposed by Kobayashi (2008), and updated by Ouchi (2008) for Chiba. 
+
+Attribute Table Fields:
+"PotPhase" -- Pottery phase as expressed originally in the excavation report. 
+"PotCorrespond" --Concordance of the pottery phase denomination. This field combines pottery phases that are verbally expressed differently (e.g. "Second Half of Kasori E phase" and "Kasori EIII-EIV") that are assumed here to be referring  to the same chronological  range. Notice that this assumption is based on the excavation report and the visual analysis of the published pottery fragments and as such they are not meant to express the original opinion of the expert who originally dated the pithouse. 
+"Shinchihei"  -- Shinchihei chronology inferred from the original chronology expressed in the excavation report (see Kobayashi 2008 and Ouchi 2008).
+"START" --Start date of the time-span of existence (negative integer)
+"END"  --End date of the time-span of existence (negative integer)
+
+
+References:
+
+Kobayashi, K. i., 2008. Jomonjidai no rekinendai. In: Kosugi, Y., Taniguchi, Y., Nishida, Y., Mizunoe, W. and Yano, K. (ed.) Rekishi no monosashi: : Jomon jidai kenkyu no hennen taikei.  Tokyo: Douseisha, 257-269.
+
+Ouchi, C., 2008. Chibaken niu okeru shokiboshuraku no buseki. In: Kobayashi, K. and Settlement-KenkyuKai (ed.) Jomon Kenkyu no shinchiheu (zoku): Tateanajukyo=hyurakuchousa no research.  Tokyo: Rokuichihobo, 99-106.

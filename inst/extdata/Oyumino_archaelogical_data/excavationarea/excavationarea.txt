@@ -1,0 +1,13 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 19-04-2012
+
+Spatial polygon data (shapefile) depicting the excavation areas in the Oyumino district (Chiba, Japan).
+
+Spatial Projection: Tokyo / Japan Plane Rectangular CS IX (EPSG: 30169)
+
+Attribute Table Fields:
+"SiteCode" -- Unique identifier of the excavation areas (site).
+"SiteName" -- Published name of the site.

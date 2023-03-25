@@ -1,0 +1,25 @@
+Dataset for  "Spatio-Temporal Distributions of Middle to Late Jomon Pithouses in Oyumino, Chiba (Japan)"
+Created by Enrico R. Crema 
+e.crema@ucl.ac.uk
+enrico.crema@gmail.com
+Last Updated 12-03-2012
+
+Spatial point data (shapefile) depicting the location of the 364 pithouses attributed to the interval between Middle and Late Jomon period at Oyumino (Chiba, Japan). 
+
+Spatial Projection: Tokyo / Japan Plane Rectangular CS IX (EPSG: 30169)
+
+Attribute Table Fields:
+
+"Code" -- Unique identifier of the pithouses. 
+
+Notes:
+Notice that the "Code" is generated from the site code (e.g. AYK) and
+a sequential number (e.g. 001). Notice also the sequence might be
+characterised by some missing numbers (e.g. AYK-001, AYK002, AYK-004,
+...); this is due to the inheritance of the identifier from an older
+dataset which included pithouses of all periods.
+
+
+
+ 
+
