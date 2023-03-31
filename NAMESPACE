@@ -2,6 +2,7 @@
 
 export("%>%")
 export(calc_house_mortgage)
+export(get_US_FRM_rate)
 export(get_prime_rate)
 export(mClean)
 importFrom(magrittr,"%>%")

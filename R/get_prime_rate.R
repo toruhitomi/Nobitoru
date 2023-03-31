@@ -90,6 +90,8 @@ get_prime_rate <- function(plotit = TRUE) {
       )) %>% 
       ggplot(aes(x = date, y = value, color = name)) +
       geom_line(aes(group = name)) +
+      # scale_x_continuous(breaks = seq(min(tbl3$year), max(tbl3$year))) +
+      # scale_x_date(breaks = as.Date(sprintf("%d-01-01", min(tbl3$year):(max(tbl3$year) + 1)))) +
       labs(x = "Date", y = "Prime rate (%)", color = "Type") +
       hrbrthemes::theme_ipsum_tw(base_size = 13, axis_title_size = 13) +
       theme(legend.position = "top")
