@@ -15,6 +15,14 @@ knitr::opts_chunk$set(echo = F, results = F, comment = F)
 pacman::p_load(Nobitoru, tidyverse, patchwork)
 ```
 
+## Update history
+
+-   v1 updated on 2023.04.01
+
+    -   Added scenarios where halfway return
+
+-   v1 created on 2023.03.21
+
 ## Summary
 
 Principal: 7M period: 10 or 20 years
@@ -161,7 +169,6 @@ df.summary %>%
 
 ```
 
-
 Principal: 5M period: 10 or 20 years
 
 ```{r fig.height=6}
@@ -236,13 +243,12 @@ df.summary %>%
 
 ```
 
+## Half-way full repayment
 
+### 5M for 20 years with AU jibun
 
-
-## Half-way full repayment 
-
-5M for 20 years mortgage with AU jibun
 ```{r}
+# 20-year 5M mortgage with 0.389% rate
 df <- calc_house_mortgage(5000000, 0.389, 20, 5000000*0.022+125000)
 
 df %>% 
@@ -250,16 +256,17 @@ df %>%
   select(unpaid_balance) %>% 
   tail()
 
+# first 10 years
 before_10y <- df %>% 
   filter(id <= 120)
 
+# calculate outcomes of 10-year payment
 before_10y %>% 
   summarise(sum_interest = sum(interest_payment),
             sum_principal_payment = sum(principal_payment),
                 sum_total_payment = sum(total_payment),
                 sum_tax_deduction = sum(tax_deduction)) %>% 
-  mutate(profit = sum_tax_deduction - (sum_interest + 5000000 * 0.022 + 125000)) %>% 
-  pull(profit)
+  mutate(profit = sum_tax_deduction - (sum_interest + 5000000 * 0.022 + 125000)) %>%   pull(profit)
 
 # initial cost for AU jibun
 5000000 * 0.022 + 125000
@@ -273,8 +280,22 @@ after_10y <- df %>%
 
 ```
 
+### 5M for 20 years with Suwa shinkin
 
+```{r}
+df <- calc_house_mortgage(5000000, 1.89, 20, 0)
 
+# 
+payment_after <- c(2, 5, 10, 15)
+ii <- 1
+df %>% 
+  filter(id <= (payment_after[ii] * 12)) %>% 
+  summarise(sum_total_payment = sum(total_payment),
+            sum_interest_payment = sum(interest_payment),
+            sum_principal_payment = sum(principal_payment), 
+            .groups = "drop")
+  
+```
 
 ```{r}
 
@@ -285,8 +306,6 @@ df %>%
   select(unpaid_balance) %>% 
   tail()
 ```
-
-
 
 ## Characteristics of banks/plans
 
@@ -312,16 +331,22 @@ df %>%
 
     -   initial cost: principal x 2.2% + 125,000 = `r 7000000*0.022 + 125000`
 
+    -   2 weeks for main screening (confirmed on 2023.03.31 by phone)
+
+    -   Downsides
+
+        -   Variable rate can be changed according to their own sake not only to the prime-rate
+
 -   SBI shinsei
 
     -   Variable focus
         -   interest rate: 0.42%
 
-        -   initial cost: principal x 2.2% + 118,000 = `r 7000000*0.022 + 118000`
+        -   initial cost: principal x 2.2% + 118,000 = `7000000*0.022 + 118000`
     -   Variable half-year
         -   interest rate: 0.65%
 
-        -   initial cost: 55,000 + 118,000 = `r 55000 + 118000
+        -   initial cost: 55,000 + 118,000 = `55000 + 118000`
 
 ## 7M for 10 years
 
