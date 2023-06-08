@@ -7,10 +7,11 @@
 calc_house_mortgage(
   principal,
   interest_rate,
-  period_year = 10,
+  period_year = 20,
   initial_cost,
   start_date = "2023-04-25",
   payment_method = "even principal",
+  payoff_date = NULL,
   verbose = FALSE,
   plotit = TRUE
 )
@@ -27,6 +28,8 @@ calc_house_mortgage(
 \item{start_date}{Character value of starting date}
 
 \item{payment_method}{Character value (Default: "even principal") indicating a method of payment: either "even principal" or "even total"}
+
+\item{payoff_date}{Character value (Default: NULL) indicating whether or not you assume payoff earlier than planned. When you put date of repayment, this function calculates all indices and total profit at the time of repayment.}
 
 \item{verbose}{Logical value (Default: FALSE) indicating whether you want to see verbose}
 
