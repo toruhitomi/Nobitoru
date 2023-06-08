@@ -4,10 +4,24 @@
 \alias{get_stockJ_data}
 \title{Get stock price history in Japan based on Yahoo! Finance webpage}
 \usage{
-get_stockJ_data(code)
+get_stockJ_data(
+  code,
+  time_unit = "d",
+  date_from = NULL,
+  date_to = NULL,
+  plotit = TRUE
+)
 }
 \arguments{
-\item{code}{Numeric value representing the stock ID number that you want to search}
+\item{code}{Character value representing the stock ID number/label that you want to search}
+
+\item{time_unit}{Character value (Default: "d") indicating a unit of time to be displayed either 'd' (daily), 'w' (weekly), or 'm' (monthly).}
+
+\item{date_from}{Numeric/Character value (Default: NULL) indicating date from which data will be extracted.}
+
+\item{date_to}{Numeric/Character value (Default: NULL) indicating date to which data will be extracted.}
+
+\item{plotit}{Logical value (Default: TRUE) indicating whether you want to plot the time-series or not}
 }
 \value{
 Dataframe
