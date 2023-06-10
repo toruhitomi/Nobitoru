@@ -82,28 +82,30 @@ get_stockJ_data <- function(code, time_unit = "d", date_from = NULL, date_to = N
   cat(sprintf("page 1 / %d", n_pages), sep = "\n")
   
   # Page 2 ~
-  for (ii in 2:n_pages) {
+  if (n_pages > 1) {
+    for (ii in 2:n_pages) {
+      r <- rvest::read_html(sprintf("%s&page=%d", quote.url2, ii))
+      Sys.sleep(1) # to avoid scraping overloading
+      
+      tbl <- rvest::html_table(r)[[1]]
+      financial.data <- financial.data %>% 
+        dplyr::bind_rows(
+          tbl %>% 
+            dplyr::transmute(
+              stock_name = title,
+              date = as.Date(`日付`, tz = "Japan", format = "%Y年%m月%d日", tz = "Japan"),
+              start_price = as.numeric(gsub(",", "", `始値`)),
+              max_price = as.numeric(gsub(",", "", `高値`)),
+              min_price = as.numeric(gsub(",", "", `安値`)),
+              final_price = as.numeric(gsub(",", "", `終値`)),
+              turnover = as.numeric(gsub(",", "", `出来高`)),
+              final_price_corrected = as.numeric(gsub(",", "", `調整後終値*`)),
+            )
+        )
+      
+      cat(sprintf("page %d / %d", ii, n_pages), sep = "\n")
+    }
     
-    r <- rvest::read_html(sprintf("%s&page=%d", quote.url2, ii))
-    Sys.sleep(1) # to avoid scraping overloading
-    
-    tbl <- rvest::html_table(r)[[1]]
-    financial.data <- financial.data %>% 
-      dplyr::bind_rows(
-        tbl %>% 
-          dplyr::transmute(
-            stock_name = title,
-            date = as.Date(`日付`, tz = "Japan", format = "%Y年%m月%d日", tz = "Japan"),
-            start_price = as.numeric(gsub(",", "", `始値`)),
-            max_price = as.numeric(gsub(",", "", `高値`)),
-            min_price = as.numeric(gsub(",", "", `安値`)),
-            final_price = as.numeric(gsub(",", "", `終値`)),
-            turnover = as.numeric(gsub(",", "", `出来高`)),
-            final_price_corrected = as.numeric(gsub(",", "", `調整後終値*`)),
-          )
-      )
-    
-    cat(sprintf("page %d / %d", ii, n_pages), sep = "\n")
   }
   
   print(financial.data)
